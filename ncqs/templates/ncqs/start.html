@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-{% load staticfiles %}
-<html>
-<head>
-    <title> Questions</title>
-    <script type='text/javascript' src = "{% static 'ncqs/js/jquery-2.2.0.min.js' %}"></script>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>NCQs Round - I</title>
+	<link rel="shortcut icon" href="img/fav.png" type="image/png"/>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+	 <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css" type="text/css">	
+	  <link rel="stylesheet" href="css/custom.css" type="text/css">	
+        <script type='text/javascript' src = "{% static 'ncqs/js/jquery-2.2.0.min.js' %}"></script>
     <script type='text/javascript' src = "{% static 'ncqs/js/jquery.plugin.js' %}"></script>
     <script type='text/javascript' src = "{% static 'ncqs/js/jquery.countdown.js' %}"></script>
     <script type ='text/javascript'>
@@ -130,25 +138,94 @@
 
     });
     </script>
-</head>
-<body>
-    <p id='time_left'></p>
-    <div id = 'div_questionset'>
+  </head>
+
+  <body >
+ 
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class='container'>
+	<img src="img/Capture.png" width='90' height='60'/>
+	<span href='/' class='lead'> <strong> Net-Wars Round - I</strong> </span>
+
+	<ul class='nav navbar-nav navbar-right'> <!-- nav-pills/nav-tabs/ navbar-nav navbar-right-->
+	<li><a href='about.html'><strong>About Us</strong></a></li>
+		<li><a href='rules.html'><strong>Rules</strong></a></li>
+	</ul>
+    </div>
+    </nav>
+		
+		
+	
+	    <div class="vertical-center" >
+		<div class=" container well  col-lg-10" >
+		<div style="text-align:left">
+	     
+		 <p id='time_left'></p>
+		<div id = 'div_questionset'>
         <p class = "question" id = "question_no"></p>
         <p class = "question" id = 'question_statement'></p>
+		
         <div id='div_choices'>
             <input id ='choice_1' type='radio' class = 'choice_class' name = "choices"/><label for='choice_1'>1</label>
             <input id ='choice_2' type='radio' class = 'choice_class' name = "choices"/><label for='choice_2'>2</label>
             <input id ='choice_3' type='radio' class = 'choice_class' name = "choices"/><label for='choice_3'>3</label>
             <input id ='choice_4' type='radio' class = 'choice_class' name = "choices"/><label for='choice_4'>4</label>
         </div>
-    </div>
-    <div id ='div_controlset'>
-    <input type='button' id='button_first' value = '<<'/>
-    <input type='button' id='button_previous' value = '<'/>
-    <input type='button' id='button_next' value = '>'/>
-    <input type='button' id='button_last' value = '>>'/>
-    </div>
-    <input type='button' id='button_end' value = 'End'/>
-</body>
+       </div>
+ 
+		
+		<div id ='div_controlset'>
+		<center>
+		<button type='button' id='button_first' value="<<" style="width:120px; height:42px" class="btn btn-lg btn-primary"> 
+		<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+		</button>
+		<button type='button' id='button_previous' value="<" style="width:150px; height:42px" class="btn btn-lg btn-primary"> 
+		<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Previous
+		</button>
+		<button type='button' id='button_next' value=">" style="width:150px; height:42px" class="btn btn-lg btn-primary"> 
+		Next<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+		</button>
+		<button type='button' id='button_last' value=">>" style="width:120px; height:42px" class="btn btn-lg btn-primary"> 
+		<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+		</button>
+		</center><br>
+		<button type='button' id='button_last' value=">>" style="width:150px; height:42px" class="btn btn-lg btn-danger col-lg-offset-10"> End</button>
+		</div>
+		
+	</div>
+	</div>
+</div>
+
+		
+		
+<footer>
+	<div class="nav navbar navbar-static-bottom" style="background-color:#f5f5f5;padding:6px;border-radius: 4px;margin-top:7px">
+	<p></p>
+        <div class="container" >
+            <div class="row">
+               <div class="col-lg-4">
+			   <img src="img/inc.png" width='35' height='35' style="margin-left:120px"/>
+    
+                    <p class="copyright text-muted ">Copyright &copy; INC-Impetus and concept's '16 .</p>
+                </div>
+	
+				<div class="col-lg-4  text-center">
+                    
+                </div>
+	
+				<div class="col-lg-4 text-center float:right">
+                    <i class="fa fa-envelope-o fa-2x wow bounceIn" data-wow-delay=".1s"></i>
+                     <p>incnetwars@gmail.com</p>
+                </div>
+				</div>
+            
+        </div>
+    </footer>
+
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery.min.js">"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
 </html>
