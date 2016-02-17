@@ -67,28 +67,72 @@ def logout_view(request):
 
 @login_required()
 def start_view(request):
+    # if it is a fresh session, no extra variables need to be present
+    # but if it is not, supply the saved value of the answers
+    # or another way is to supply empty variable in the fresh case
+    # and populated variable in the next
+    # the above won't work as start.html will fire fetch-questions
+    # through ajax to get the questions, i can send extra info there
     if request.user.is_authenticated():
         return render(request, "ncqs/start.html")
 
     else:   
         return HttpResponseRedirect(request, "/ncqs/login")
 
+'''
+given a random list of numbers(index), the type of question(easy or hard) and the user:
+return a list of dictionaries having question and their choices after committing the 
+questions to the database
+
+do the following for each i in index
+    get the question associated with the index and shuffle its choices
+    make a question paper object, storing the question in it wrt user
+    create a list of dictionary objects that hold the questions and the choices
+
+note: i am not storing the shuffling order of the choices, so every time user refreshes
+the page, the shuffling will change
+'''
 def get_question_list(index, qtype, user):
     question_objects = Question.objects.all().filter(question_type=qtype)
     question_list = []
     for i in index:
         question_object = question_objects[i]
-        QuestionPaper.objects.get_or_create(user = user, question = question_object)
-        question_dict = {}
-        choices = [question_object.choice_correct, question_object.choice1, question_object.choice2, question_object.choice3]
-        shuffle(choices)
-        question_dict['question'] = question_object.question
-        question_dict['choices'] = choices
+        question_paper, created = QuestionPaper.objects.get_or_create(user = user, question = question_object)
+        question_dict = get_dictionary_from_question_paper(question_paper)
+        # choices = [question_object.choice_correct, question_object.choice1, question_object.choice2, question_object.choice3]
+        # shuffle(choices)
+        # question_dict['question'] = question_object.question
+        # question_dict['choices'] = choices
         question_list.append(question_dict)
     return question_list;
 
+'''
+given a question paper object:
+it will return a nice dictionary having 
+    question:
+    choices:
+    answer:
+'''
+def get_dictionary_from_question_paper(question_paper):
+    question_dict = {}
+    question_object = question_paper.question
+    choices = [question_object.choice_correct, question_object.choice1, question_object.choice2, question_object.choice3]
+    shuffle(choices)
+    user_answer = question_paper.user_answer
+    question_dict['question']=question_object.question
+    question_dict['choices'] = choices
+    question_dict['answer'] = user_answer
+    return question_dict
+
+
 def make_question_paper(user):
     easy_question_index = sample(range(settings.NCQS_TOTAL_EASY_QUESTIONS),settings.NCQS_SOLVABLE_EASY_QUESTIONS)
+    '''
+    what if i store these random values to the user session?
+    then every time there is a refresh, the same random values
+    will be furnished
+    don't do it, it won't save you from power-off problem
+    '''
     hard_question_index = sample(range(settings.NCQS_TOTAL_HARD_QUESTIONS), settings.NCQS_SOLVABLE_HARD_QUESTIONS)
     easy_question = get_question_list(easy_question_index, 'EASY', user)
     print "easy questions:\n"+str(easy_question);
@@ -97,24 +141,38 @@ def make_question_paper(user):
     final_question_list = easy_question + hard_question
     return final_question_list
  
-@login_required   
+@login_required
 def fetch_questions_ajax(request):
     current_user = request.user
-    question_list = make_question_paper(current_user)
-    # add a session variable here that keeps track whether we are making
-    # the paper for the first time or not, otherwise every page refresh
-    # will result in making of new question paper for this particular user
-    # another solution is to check in start whether we have received a POST or GET
+    '''
+    query the database and find out whether questionpaper is made
+    or not for this user, if made then return the questions with
+    shuffled choices along with the answer of user, if not then
+    the same thing but answers will be empty or non existent
+    '''
+    questions = QuestionPaper.objects.all().filter(user=current_user)
+    question_list = []
+    if not questions:
+        # make new questions here
+        print "making new questions for the user:", current_user.username   
+        question_list = make_question_paper(current_user)
+        # add a session variable here that keeps track whether we are making
+        # the paper for the first time or not, otherwise every page refresh
+        # will result in making of new question paper for this particular user
+        # another solution is to check in start whether we have received a POST or GET
+        # don't do it, read the above string comment
+
+        # start the timer!
+        username = current_user.username
+        key = settings.NCQS_REDIS_PREFIX+username
+        seconds = settings.NCQS_TOTAL_TIME
+        print "now setting the key "+key+", which will expire in "+str(seconds)+" seconds.";
+        rd = StrictRedis()
+        rd.setex(key, seconds, "1")
+    else:
+        question_list = map(get_dictionary_from_question_paper, list(questions))
+
     data = {"data":question_list}
-
-    # start the timer!
-    username = current_user.username
-    key = settings.NCQS_REDIS_PREFIX+username
-    seconds = settings.NCQS_TOTAL_TIME
-    print "now setting the key "+key+", which will expire in "+str(seconds)+" seconds.";
-    rd = StrictRedis()
-    rd.setex(key, seconds, "1")
-
     return JsonResponse(data);
 
 def delete_record_view(request, username='murtraja'):

@@ -20,7 +20,7 @@ class Question(models.Model):
 class QuestionPaper(models.Model):
     user = models.ForeignKey(User);
     question = models.ForeignKey(Question);
-    user_answer = models.CharField(max_length = 100);
+    user_answer = models.CharField(max_length = 100, default='');
     def __unicode__(self):      #For Python 2, use __str__ on Python 3
         return str(self.user)+" gave answer "+self.user_answer;
 

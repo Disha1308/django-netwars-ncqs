@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load staticfiles %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -6,20 +7,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>NCQs Round - I</title>
-	<link rel="shortcut icon" href="img/fav.png" type="image/png"/>
+	<link rel="shortcut icon" href="/static/ncqs/img/fav.png" type="image/png"/>
     <!-- Bootstrap -->
-    <link href="css/bootstrap.css" rel="stylesheet">
-	 <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css" type="text/css">	
-	  <link rel="stylesheet" href="css/custom.css" type="text/css">	
+    <link href="/static/ncqs/css/bootstrap.css" rel="stylesheet">
+	 <link rel="stylesheet" href="/static/ncqs/font-awesome/css/font-awesome.min.css" type="text/css">	
+	  <link rel="stylesheet" href="/static/ncqs/css/custom.css" type="text/css">	
         <script type='text/javascript' src = "{% static 'ncqs/js/jquery-2.2.0.min.js' %}"></script>
     <script type='text/javascript' src = "{% static 'ncqs/js/jquery.plugin.js' %}"></script>
     <script type='text/javascript' src = "{% static 'ncqs/js/jquery.countdown.js' %}"></script>
     <script type ='text/javascript'>
     $(document).ready(function(){
+        // alert("hi");
         var questions = null;
+        var username = "{{ user.get_username }}";
         var answers = {};
         var current = 0;
         $.getJSON( "/ncqs/fetch-questions/", function( data ) {
+            console.log("received  data");
+            console.log(data);
             questions = data["data"];
             console.log(questions);
             setupQuestion(0);
@@ -32,17 +37,18 @@
             $('#question_statement').html(questionString);
             $('#question_no').html(""+(index+1));
             choiceArray = questions[index]['choices'];
-            divChoices = $('#div_choices').children();
+            //<input id ='choice_1' type='radio' class = 'choice_class' name = "choices"/><label for='choice_1'>1</label><br>
+            radio_buttons = $("input[id^='choice_'");
+            labels = $("label[for^='choice_']");
+            answer = questions[index]['answer']
             for(i=0; i<4; i++)
             {
-                divChoices.eq(i*2).val(choiceArray[i]);
-                divChoices.eq(i*2).prop('checked', false);
-                divChoices.eq(i*2+1).html(choiceArray[i]);
+                radio_buttons.eq(i).val(choiceArray[i]);
+                radio_buttons.eq(i).prop("checked", false);
+                labels.eq(i).html(choiceArray[i]);
             }
-            if(index.toString() in answers)
-            {
-                $('.choice_class[value='+answers[index.toString()]+']').prop("checked", true);                
-            }
+            //now based on the answer, check the radio button
+            $("input[value='"+answer+"']").prop("checked", true);
         }
         $('.choice_class').on("change", function(){
             // add an ajax post to save this answer
@@ -56,6 +62,7 @@
                         if(json['success'])
                         {
                             answers[current.toString()] = answer;
+                            questions[current]["answer"] = answer;
                             console.log("saved!");
                             console.log(answers);
                         }
@@ -129,12 +136,12 @@
             });
         });
         var getTime = function(){
-            $.getJSON('http://127.0.0.1:7379/TTL/ncqs:murtraja', function(data){
+            $.getJSON('http://127.0.0.1:7379/TTL/ncqs:'+username, function(data){
                 //json = JSON.parse(data);
                 $('#time_left').html(data['TTL']);
             });
         }
-        setInterval(getTime, 500);
+        //setInterval(getTime, 500);
 
     });
     </script>
@@ -144,7 +151,7 @@
  
   <nav class="navbar navbar-default navbar-fixed-top">
     <div class='container'>
-	<img src="img/Capture.png" width='90' height='60'/>
+	<img src="/static/ncqs/img/Capture.png" width='90' height='60'/>
 	<span href='/' class='lead'> <strong> Net-Wars Round - I</strong> </span>
 
 	<ul class='nav navbar-nav navbar-right'> <!-- nav-pills/nav-tabs/ navbar-nav navbar-right-->
@@ -166,10 +173,10 @@
         <p class = "question" id = 'question_statement'></p>
 		
         <div id='div_choices'>
-            <input id ='choice_1' type='radio' class = 'choice_class' name = "choices"/><label for='choice_1'>1</label>
-            <input id ='choice_2' type='radio' class = 'choice_class' name = "choices"/><label for='choice_2'>2</label>
-            <input id ='choice_3' type='radio' class = 'choice_class' name = "choices"/><label for='choice_3'>3</label>
-            <input id ='choice_4' type='radio' class = 'choice_class' name = "choices"/><label for='choice_4'>4</label>
+            <input id ='choice_1' type='radio' class = 'choice_class' name = "choices"/><label for='choice_1'>1</label><br>
+            <input id ='choice_2' type='radio' class = 'choice_class' name = "choices"/><label for='choice_2'>2</label><br>
+            <input id ='choice_3' type='radio' class = 'choice_class' name = "choices"/><label for='choice_3'>3</label><br>
+            <input id ='choice_4' type='radio' class = 'choice_class' name = "choices"/><label for='choice_4'>4</label><br>
         </div>
        </div>
  
@@ -189,7 +196,7 @@
 		<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 		</button>
 		</center><br>
-		<button type='button' id='button_last' value=">>" style="width:150px; height:42px" class="btn btn-lg btn-danger col-lg-offset-10"> End</button>
+		<button type='button' id='button_end' value=">>" style="width:150px; height:42px" class="btn btn-lg btn-danger col-lg-offset-10"> End</button>
 		</div>
 		
 	</div>
@@ -204,7 +211,7 @@
         <div class="container" >
             <div class="row">
                <div class="col-lg-4">
-			   <img src="img/inc.png" width='35' height='35' style="margin-left:120px"/>
+			   <img src="/static/ncqs/img/inc.png" width='35' height='35' style="margin-left:120px"/>
     
                     <p class="copyright text-muted ">Copyright &copy; INC-Impetus and concept's '16 .</p>
                 </div>
@@ -221,11 +228,7 @@
             
         </div>
     </footer>
-
-
-	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="js/jquery.min.js">"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="/static/ncqs/js/bootstrap.min.js"></script>
   </body>
 </html>
