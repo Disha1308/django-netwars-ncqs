@@ -7,14 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>NCQs Round - I</title>
-	<link rel="shortcut icon" href="/static/ncqs/img/fav.png" type="image/png"/>
+    <link rel="shortcut icon" href="/static/ncqs/img/fav.png" type="image/png"/>
     <!-- Bootstrap -->
     <link href="/static/ncqs/css/bootstrap.css" rel="stylesheet">
-	 <link rel="stylesheet" href="/static/ncqs/font-awesome/css/font-awesome.min.css" type="text/css">	
-	  <link rel="stylesheet" href="/static/ncqs/css/custom.css" type="text/css">	
-        <script type='text/javascript' src = "{% static 'ncqs/js/jquery-2.2.0.min.js' %}"></script>
-    <script type='text/javascript' src = "{% static 'ncqs/js/jquery.plugin.js' %}"></script>
-    <script type='text/javascript' src = "{% static 'ncqs/js/jquery.countdown.js' %}"></script>
+    <link rel="stylesheet" href="/static/ncqs/font-awesome/css/font-awesome.min.css" type="text/css">	
+    <link rel="stylesheet" href="/static/ncqs/css/custom.css" type="text/css">	
+    <link rel="stylesheet" href="/static/ncqs/css/jquery.countdown.css">
+    <script type='text/javascript' src = "/static/ncqs/js/jquery-2.2.0.min.js"></script>
+    <script type='text/javascript' src = "/static/ncqs/js/jquery.plugin.js"></script>
+    <script type='text/javascript' src = "/static/ncqs/js/jquery.countdown.js"></script>
     <script type ='text/javascript'>
     $(document).ready(function(){
         // alert("hi");
@@ -138,10 +139,16 @@
         var getTime = function(){
             $.getJSON('http://127.0.0.1:7379/TTL/ncqs:'+username, function(data){
                 //json = JSON.parse(data);
-                $('#time_left').html(data['TTL']);
+                time = parseInt(data['TTL'])
+                //check if it is positive
+                if (time > 0) {
+                    $('#time_left').countdown('option', 'until', parseInt(time));                    
+                }
             });
         }
-        //setInterval(getTime, 500);
+        $('#time_left').countdown({until: 0});
+        getTime();
+        setInterval(getTime, 5000);
 
     });
     </script>
@@ -163,11 +170,11 @@
 		
 		
 	
-	    <div class="vertical-center" >
-		<div class=" container well  col-lg-10" >
-		<div style="text-align:left">
-	     
-		 <p id='time_left'></p>
+        <div class="vertical-center" >
+        <div class=" container well  col-lg-10" >
+        <div style="text-align:left">
+		<div id="time_left"></div>
+         <br>
 		<div id = 'div_questionset'>
         <p class = "question" id = "question_no"></p>
         <p class = "question" id = 'question_statement'></p>
